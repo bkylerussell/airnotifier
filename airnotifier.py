@@ -110,15 +110,14 @@ class AirNotifierApp(tornado.web.Application):
         conditions = []
         if channel == 'default':
             # channel is not set or channel is default
-            conditions.append({'channel': {"$exists": False}})
-            conditions.append({'channel': 'default'})
+            conditions.append({"$or": [ {'channel': {"$exists": False}}, {'channel': 'default'} ] })
         else:
             conditions.append({'channel': channel})
 
         if device:
             conditions.append({'device': device})
 
-        tokens = appdb.tokens.find({"$or": conditions})
+        tokens = appdb.tokens.find({"$and": conditions})
 
         regids = []
         try:

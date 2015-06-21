@@ -43,6 +43,19 @@ $(document).ready(function() {
     <fieldset>
         <legend>{{ _('Broadcast') }}</legend>
 
+        {% if devices %}
+        <div class="control-group">
+            <label class="control-label" for="devices">{{ _('Devices') }}</label>
+            <div class="controls">
+                <select id="devices" name="devices">
+                    {% for device in devices %}
+                    <option>{{ device }}</option>
+                    {% end %}
+                </select>
+            </div>
+        </div>
+        {% end %}
+
         <div class="control-group">
             <label class="control-label" for="notification">{{ _('Message') }}</label>
             <div class="controls">

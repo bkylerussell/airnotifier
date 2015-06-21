@@ -32,12 +32,16 @@ from controllers.base import *
 
 @route(r"/applications/([^/]+)/broadcast")
 class AppBroadcastHandler(WebBaseHandler):
+    def getDeviceTypes(self):
+	devices = self.db.tokens.distinct("device")
+	devices.insert(0, "All")
+	return devices
     @tornado.web.authenticated
     def get(self, appname):
         self.appname = appname
         app = self.masterdb.applications.find_one({'shortname':appname})
         if not app: raise tornado.web.HTTPError(500)
-        self.render("app_broadcast.html", app=app, sent=False)
+        self.render("app_broadcast.html", app=app, sent=False, devices=self.getDeviceTypes())
     @tornado.web.authenticated
     def post(self, appname):
         self.appname = appname
@@ -46,8 +50,9 @@ class AppBroadcastHandler(WebBaseHandler):
         alert = self.get_argument('notification').strip()
         sound = 'default'
         channel = 'default'
-        self.application.send_broadcast(self.appname, self.db, channel=channel, alert=alert, sound=sound)
-        self.render("app_broadcast.html", app=app, sent=True)
+	device = None if self.get_argument('devices') == "All" else self.get_argument('devices').strip()
+        self.application.send_broadcast(self.appname, self.db, channel=channel, alert=alert, sound=sound, device=device)
+        self.render("app_broadcast.html", app=app, sent=True, devices=self.getDeviceTypes())
 
 @route(r"/applications/([^/]+)/broadcast/status")
 class AppBroadcastStatusHandler(WebBaseHandler):
