@@ -69,7 +69,7 @@ class AirNotifierApp(tornado.web.Application):
         return RouteLoader.load(dir)
 
     def get_broadcast_status(self, appname):
-	status = "Notification sent!"
+	status = "Notification sent! (%d %s)" % (self.last_token_count, "device" if self.last_token_count == 1 else "devices")
 	error = False
 
 	try:
@@ -118,6 +118,7 @@ class AirNotifierApp(tornado.web.Application):
             conditions.append({'device': device})
 
         tokens = appdb.tokens.find({"$and": conditions})
+	self.last_token_count = tokens.count()
 
         regids = []
         try:
@@ -159,6 +160,7 @@ class AirNotifierApp(tornado.web.Application):
             autoescape=None,
             )
         self.services = services
+	self.last_token_count = 0
 
         sitehandlers = self.init_routes('controllers')
         apihandlers = self.init_routes('api')
